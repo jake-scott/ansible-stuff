@@ -1,0 +1,27 @@
+---
+
+- name: Configure iptables
+  template:
+    backup: yes
+    src: iptables.j2
+    dest: /etc/sysconfig/iptables
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload_iptables
+  become: yes
+  become_user: root
+
+- name: Configure iptables (IPv6)
+  template:
+    backup: yes
+    src: ip6tables.j2
+    dest: /etc/sysconfig/ip6tables
+    owner: root
+    group: root
+    mode: '0644'
+  notify: reload_ip6tables
+  become: yes
+  become_user: root
+
+

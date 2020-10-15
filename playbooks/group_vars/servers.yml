@@ -39,6 +39,7 @@ software:
    - jq
    - traceroute
    - google-authenticator
+   - iptables-services
 
 sshd:
   ChallengeResponseAuthentication: yes
@@ -69,4 +70,11 @@ certs:
     - vpn-uk.poptart.org
     - vpn-us.poptart.org
 
-
+firewall:
+  ext:
+    in:
+      - proto: tcp
+        port: 22
+  vpn:
+    in:
+      - proto: ospf

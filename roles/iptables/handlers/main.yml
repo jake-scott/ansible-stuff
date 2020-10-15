@@ -1,0 +1,20 @@
+---
+
+- name: Reload the iptables services
+  systemd:
+    name: iptables.service
+    enabled: yes
+    state: restarted
+  become: yes
+  become_user: root
+  listen: reload_iptables
+
+- name: Reload the ip6tables services
+  systemd:
+    name: ip6tables.service
+    enabled: yes
+    state: restarted
+  become: yes
+  become_user: root
+  listen: reload_ip6tables
+  
