@@ -1,0 +1,20 @@
+---
+
+- name: VIP {{name}} - {{ip_address}}
+  template:
+    backup: no
+    src: ifcfg.j2
+    dest: /etc/sysconfig/network-scripts/ifcfg-lo:{{name}}
+    owner: root
+    mode: '0640'
+  become: yes
+  become_user: root
+  register: cfg
+
+- name: Restart network
+  systemd:
+    name: network
+    state: restarted
+  when: cfg.changed
+  become: yes
+  become_user: root

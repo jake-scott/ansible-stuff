@@ -1,0 +1,25 @@
+---
+
+
+- block:
+  - name: Set config user's authorized key
+    ansible.posix.authorized_key:
+      user: config
+      state: present
+      exclusive: yes
+      manage_dir: yes
+      key: https://raw.githubusercontent.com/jake-scott/keys/master/ssh/config
+
+
+
+  - block:
+    - include_role:
+        name: willshersystems.sshd
+      vars:
+        ssh: "{{ ssh }}"
+
+    become: yes
+    become_user: root
+ 
+  tags:
+    - ssh

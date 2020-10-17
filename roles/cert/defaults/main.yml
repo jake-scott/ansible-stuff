@@ -1,0 +1,3 @@
+needs_renew: false
+key_size: 4096
+acme_directory: https://acme-staging-v02.api.letsencrypt.org/directory

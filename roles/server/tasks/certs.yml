@@ -1,0 +1,65 @@
+---
+
+- block:
+
+  - include_role:
+      name: cert
+    vars:
+      acme_info: "{{ certs.acme }}"
+      google_info: "{{ certs.google_dns }}"
+      fqdn: "{{ inventory_hostname }}"
+      domain: "{{ inventory_hostname.split('.')[1:] | join('.') }}"
+
+  - include_role:
+      name: cert
+    vars:
+      acme_info: "{{ certs.acme }}"
+      google_info: "{{ certs.google_dns }}"
+      fqdn: "{{ fqdn }}"
+      domain: "{{ fqdn.split('.')[1:] | join('.') }}"
+    loop: "{{ certs.fqdns }}"
+    run_once: yes
+    loop_control:
+      loop_var: fqdn
+      label: "{{ fqdn }}"
+
+  delegate_to: localhost
+  tags: certs
+
+
+
+- block:
+  - name: Copy host certificate
+    copy:
+      src: "{{ cert_dir }}/{{ inventory_hostname }}.pem"
+      dest: /etc/pki/tls/private/host.pem
+      owner: root
+      group: root
+      mode: '0640'
+      backup: yes
+
+  - name: Copy other certificates
+    copy:
+      src: "{{ cert_dir }}/{{ fqdn }}.pem"
+      dest: /etc/pki/tls/private/{{ fqdn }}.pem
+      owner: root
+      group: root
+      mode: '0640'
+      backup: yes
+    loop: "{{ certs.fqdns }}"
+    loop_control:
+      loop_var: fqdn
+      label: "{{ fqdn }}"
+
+  - name: "POSIX ACL: Read for hostcert group"
+    ansible.posix.acl:
+      path: /etc/pki/tls/private/{{ item }}.pem
+      entity: hostcert
+      etype: group
+      permissions: r
+      state: present
+    loop: "{{ certs.fqdns + ['host'] }}"
+
+  become: yes
+  become_user: root
+  tags: certs

@@ -1,0 +1,6 @@
+---
+
+ansible_user: config
+cert_dir: /var/tmp/jake/certs
+
+

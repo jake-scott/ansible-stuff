@@ -1,0 +1,30 @@
+---
+
+- block:
+
+  - name: Groups
+    group:
+      name: "{{ item.key }}"
+      system: "{{ item.value.attributes.system |default(false) }}"
+      state: present
+    loop: "{{ unixgroups | dict2items }}"
+    loop_control:
+      label: "{{ item.key }}"
+
+  - name: User accounts
+    user:
+      name: "{{ item.key }}"
+      comment: "{{ item.value.fullname | default(item.key) }}"
+      system: "{{ item.value.attributes.system |default(false) }}"
+      groups: "{{ item.value.groups }}"
+      state: present
+
+    loop: "{{ users | dict2items }}"
+    loop_control:
+      label: "{{ item.key }}"
+
+
+  become: yes
+  become_user: root
+  tags:
+    - users

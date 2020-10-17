@@ -1,0 +1,46 @@
+---
+
+- name: Configure site to site {{name}}
+  template:
+    backup: yes
+    src: "site-to-site.j2"
+    dest: "{{server_config_dir}}/{{name}}.conf"
+    owner: root
+    group: openvpn
+    mode: '0640'
+  become: yes
+  become_user: root
+  register: cfg
+
+- name: Check key exists {{name}}
+  stat:
+    path: "{{local_keys_dir}}/{{name}}.key"
+  register: st
+  delegate_to: localhost
+  run_once: true
+
+- name: Generate key {{name}}
+  shell:
+    cmd: openvpn --genkey --secret "{{local_keys_dir}}/{{name}}.key"
+  when: not st.stat.exists
+  delegate_to: localhost
+  run_once: true
+
+- name: Push key {{name}}
+  copy:
+    dest: "{{remote_keys_dir}}/{{name}}.key"
+    src: "{{local_keys_dir}}/{{name}}.key"
+    owner: root
+    group: openvpn
+    mode: '0640'
+  become: yes
+  become_user: root
+  register: key
+
+- name: Enable systemd for {{name}}
+  systemd:
+    name: openvpn-server@{{name}}.service
+    enabled: yes
+    state: "{{ 'restarted' if cfg.changed or key.changed else 'started' }}"
+  become: yes
+  become_user: root

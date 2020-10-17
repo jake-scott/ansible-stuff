@@ -1,0 +1,25 @@
+---
+
+- block:
+  - name: Configure sudoers includes
+    lineinfile:
+      dest: /etc/sudoers
+      state: present
+      regexp: '^#includedir '
+      line: '#includedir /etc/sudoers.d'
+      validate: 'visudo -cf %s'
+
+  - name: Sudo rule for config user
+    copy:
+      dest: /etc/sudoers.d/{{ansible_user}}
+      owner: root
+      group: root
+      mode: '0600'
+      content: |
+        {{ansible_user}}   ALL = (root) NOPASSWD:  ALL
+      validate: 'visudo -cf %s'
+
+  become: yes
+  become_user: root
+  tags:
+    - sudo

@@ -1,0 +1,4 @@
+---
+local_keys_dir: /var/tmp/jake/vpnkeys
+remote_keys_dir: /etc/openvpn/server
+server_config_dir: /etc/openvpn/server

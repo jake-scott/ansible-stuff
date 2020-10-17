@@ -1,0 +1,33 @@
+---
+
+- block:
+
+  - name: Acme account registration
+    community.crypto.acme_account:
+      acme_version: 2
+      acme_directory: "{{ acme_directory }}"
+      account_key_src: "{{ acme_info.private_key }}"
+      state: present
+      terms_agreed: yes
+      contact:
+        - mailto:jake@poptart.org
+
+  - name: Acme account validation
+    community.crypto.acme_account_info:
+      acme_version: 2
+      acme_directory: "{{ acme_directory }}"
+      account_key_src: "{{ acme_info.private_key }}"
+    register: account_data
+
+  - name: Verify that account exists
+    assert:
+      quiet: yes
+      that:
+        - account_data.exists
+
+  - debug:
+      msg: "Acme account created at {{ account_data.account.createdAt }}"
+
+  run_once: true
+  delegate_to: localhost
+

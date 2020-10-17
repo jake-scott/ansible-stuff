@@ -1,0 +1,85 @@
+---
+
+- include_tasks: acme_account.yml
+
+- name: Cert directory
+  file:
+    path: "{{ cert_dir }}"
+    state: directory
+    mode: '0755'
+  run_once: true
+
+
+- name: Check certificate existance
+  stat:
+    path: "{{ cert_dir }}/{{ fqdn }}.pem"
+  register : st
+
+- block:
+  - name: Check existing certificate
+    community.crypto.x509_certificate_info:
+      path: "{{ cert_dir }}/{{ fqdn }}.pem"
+      valid_at:
+        one_month: "+4w"
+    register: certstatus
+  when: st.stat.exists
+
+- block:
+  - name: Generate private key
+    community.crypto.openssl_privatekey:
+      path: "{{cert_dir}}/{{fqdn}}.key.tmp"
+      size: "{{ key_size }}"
+      force: yes
+
+  - name: Generate certificate request
+    community.crypto.openssl_csr:
+      path: "{{cert_dir}}/{{fqdn}}.csr.tmp"
+      privatekey_path: "{{cert_dir}}/{{fqdn}}.key.tmp"
+      common_name: "{{ fqdn }}"
+      subject_alt_name: "DNS:{{ fqdn }}"
+
+  - name: Create Acme challenge
+    community.crypto.acme_certificate:
+      acme_version: 2
+      acme_directory: "{{ acme_directory }}"
+      account_key_src: "{{ acme_info.private_key }}"
+      challenge: dns-01
+      csr: "{{cert_dir}}/{{fqdn}}.csr.tmp"
+      fullchain_dest: "{{cert_dir}}/{{fqdn}}.crt.tmp"
+      force: true
+    register: acme_challenge
+
+
+  - include_tasks: google_dns.yml
+    vars:
+      name: "{{ item.key }}"
+      values: "{{ item.value }}"
+      project: "{{ google_info.project }}"
+      key_file: "{{ google_info.key_file }}"
+    loop: "{{ acme_challenge.challenge_data_dns | dict2items }}"
+    when: acme_challenge is changed
+
+  - name: Validate Acme challenge
+    community.crypto.acme_certificate:
+      acme_version: 2
+      acme_directory: "{{ acme_directory }}"
+      account_key_src: "{{ acme_info.private_key }}"
+      challenge: dns-01
+      csr: "{{cert_dir}}/{{fqdn}}.csr.tmp"
+      fullchain_dest: "{{cert_dir}}/{{fqdn}}.crt.tmp"
+      data: "{{ acme_challenge }}"
+      force: true
+    when: acme_challenge is changed
+
+  - name: Create certificate bundle
+    copy:
+      dest: "{{ cert_dir }}/{{ fqdn }}.pem"
+      mode: '0600'
+      backup: yes
+      content: |
+        {{lookup('file', cert_dir + '/' + fqdn + '.key.tmp')}}
+        {{lookup('file', cert_dir + '/' + fqdn + '.crt.tmp')}}
+      validate: "{{inventory_dir}}/../bin/validate-cert %s"
+
+  when: (not st.stat.exists) or (not certstatus.valid_at.one_month)
+

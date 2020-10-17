@@ -1,0 +1,10 @@
+---
+
+- include_tasks: vip.yml
+  vars:
+    name: "{{ item.key }}"
+    ip_address: "{{ item.value }}"
+  loop: "{{ vips | dict2items }}"
+  tags: network
+
+

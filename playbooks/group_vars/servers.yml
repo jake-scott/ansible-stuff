@@ -1,0 +1,72 @@
+---
+
+unixgroups:
+  restricted:
+    attributes:
+      system: true
+  hostcert:
+    attributes:
+      system: true
+
+users:
+  jacob:
+    groups:
+      - wheel
+    fullname: Jake Scott
+
+  "{{ansible_user}}":
+    groups:
+       - restricted
+    fullname: Ansible configuration service
+    attributes:
+      system: true
+
+  openvpn:
+    groups: hostcert
+
+software:
+   - docker
+   - telnet
+   - unzip
+   - httpd
+   - openvpn
+   - python36
+   - golang-bin
+   - net-tools
+   - tcpdump
+   - quagga
+   - bind-utils
+   - jq
+   - traceroute
+   - google-authenticator
+
+sshd:
+  ChallengeResponseAuthentication: yes
+  PermitRootLogin: no
+  Match:
+    - Condition: "Address 10.2.0.0/24"
+      PermitRootLogin: yes
+    - Condition: "Address 10.2.0.0/24"
+      PermitRootLogin: yes
+    - Condition: "Group restricted"
+      PasswordAuthentication: false
+      PermitTunnel: false
+      X11Forwarding: false
+      AllowAgentForwarding: false
+      AllowStreamLocalForwarding: false
+      AllowTcpForwarding: false
+      PermitUserRC: false
+      PermitTTY: false
+  
+certs:
+  acme:
+    private_key: /home/jacob/.letsencrypt-key
+  google_dns:
+    key_file: /home/jacob/.google-dns-key.json
+    project: utopian-plane-114822
+  fqdns:
+    - hotspot.poptart.org
+    - vpn-uk.poptart.org
+    - vpn-us.poptart.org
+
+

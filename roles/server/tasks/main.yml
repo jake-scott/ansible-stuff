@@ -1,0 +1,13 @@
+---
+
+- include_tasks: packages.yml
+
+- include_tasks: pam.yml
+
+ - include_tasks: users.yml
+
+ - include_tasks: ssh.yml
+
+ - include_tasks: sudo.yml
+
+ - include_tasks: certs.yml

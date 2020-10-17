@@ -1,0 +1,40 @@
+---
+
+- debug:
+   var: domain
+
+- google.cloud.gcp_dns_managed_zone_info:
+    dns_name: "{{ domain }}."
+    auth_kind: serviceaccount
+    project: "{{ project }}"
+    service_account_file: "{{ key_file }}"
+  register: zoneinfo
+
+- name: Verify DNS domain exists
+  assert:
+     quiet: yes
+     that:
+       - zoneinfo.resources.0 | length > 0
+
+- google.cloud.gcp_dns_resource_record_set:
+    name: "{{ name }}."
+    managed_zone: "{{ zoneinfo.resources.0 }}"
+    type: TXT
+    ttl: 10
+    target: "{{ values | map('regex_replace', '^(.*)$', '\"\\1\"' ) | list }}"
+    auth_kind: serviceaccount
+    project: "{{ project }}"
+    service_account_file: "{{ key_file }}"
+    state: present
+
+- name: Polling for DNS change to propogate
+  shell:
+    cmd: host -t TXT "{{ name }}" "{{ ns }}"
+  register: nslookup
+  until: nslookup.rc == 0 and values.0 in nslookup.stdout
+  retries: 18
+  delay: 10
+  loop: "{{ zoneinfo.resources.0.nameServers }}"
+  loop_control:
+    loop_var: ns
+    label: Nameserver {{ns}}

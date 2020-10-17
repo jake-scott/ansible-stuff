@@ -1,0 +1,15 @@
+#!/bin/bash
+
+FILE=$1
+
+M1=$(openssl x509 -noout -modulus -in "${FILE}")
+M2=$(openssl rsa  -noout -modulus -in "${FILE}")
+
+if [[ $M1 = $M2 ]]
+then
+    exit 0
+else 
+    echo Mismatched modulus
+    exit 1
+fi
+

@@ -1,0 +1,10 @@
+---
+
+- hosts: servers
+
+  roles:
+    - server
+    - openvpn
+    - vips
+    - routing
+    

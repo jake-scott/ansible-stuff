@@ -1,0 +1,51 @@
+---
+
+- name: Configure zebra
+  template:
+    backup: yes
+    src: zebra.conf.j2
+    dest: /etc/quagga/zebra.conf
+    owner: quagga
+    group: quagga
+    mode: '0644'
+  become: yes
+  become_user: root
+  register: zebra
+
+- name: Configure ospfd
+  template:
+    backup: yes
+    src: ospfd.conf.j2
+    dest: /etc/quagga/ospfd.conf
+    owner: quagga
+    group: quagga
+    mode: '0644'
+  become: yes
+  become_user: root
+  register: ospfd
+
+- name: Enable systemd for zebra
+  systemd:
+    name: zebra.service
+    enabled: yes
+    state: "{{ 'restarted' if zebra.changed else 'started' }}"
+  become: yes
+  become_user: root
+
+
+- name: Enable systemd for ospfd
+  systemd:
+    name: ospfd.service
+    enabled: yes
+    state: "{{ 'restarted' if ospfd.changed  else 'started' }}"
+  become: yes
+  become_user: root
+
+
+- ansible.posix.sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    sysctl_file: /etc/sysctl.d/50-ipforward.conf
+    sysctl_set: yes
+  become: yes
+  become_user: root

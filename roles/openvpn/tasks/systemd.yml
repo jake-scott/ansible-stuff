@@ -1,0 +1,31 @@
+---
+
+- name: OpenVPN systemd directory
+  file:
+    state: directory
+    path: /etc/systemd/system/openvpn-server@.service.d
+    mode: "0755"
+  become: yes
+  become_user: root
+
+- name: OpenVPN systemd configuration files
+  copy:
+    dest: "/etc/systemd/system/openvpn-server@.service.d/local.conf"
+    content: |
+      [Service]
+      RuntimeDirectory = openvpn
+      ExecStart=
+      ExecStart=/usr/sbin/openvpn --status %t/openvpn-server/status-%i.log --status-version 2 --config %i.conf
+    owner: root
+    group: root
+    mode: '0644'
+  become: yes
+  become_user: root
+  register: cfg
+
+- name: Reload systemd configuration
+  systemd:
+    daemon_reload: yes
+  become: yes
+  become_user: root
+  when: cfg.changed
