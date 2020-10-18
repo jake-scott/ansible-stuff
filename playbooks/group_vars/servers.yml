@@ -69,12 +69,4 @@ certs:
     - hotspot.poptart.org
     - vpn-uk.poptart.org
     - vpn-us.poptart.org
-
-firewall:
-  ext:
-    in:
-      - proto: tcp
-        port: 22
-  vpn:
-    in:
-      - proto: ospf
+acme_directory: https://acme-v02.api.letsencrypt.org/directory

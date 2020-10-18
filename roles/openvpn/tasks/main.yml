@@ -1,18 +1,32 @@
 ---
 
-- include_tasks: secrets.yml
-  tags: secrets
+# - include_tasks: secrets.yml
+#   tags: secrets
 
-- include_tasks: systemd.yml
-  tags: config
+# - include_tasks: systemd.yml
+#   tags: config
+
+# - set_fact:
+#    vpninfo: "{{vpn.site_to_site}}"
+
+# - name: Configure site to site VPNs
+#   include_tasks: config-site2site.yml
+#   vars:
+#     name: "{{ item.key }}"
+#     vpn: "{{ item.value }}"
+#   loop: "{{ vpninfo | dict2items }}"
+#   tags: config
 
 - set_fact:
-   vpninfo: "{{vpn.site_to_site}}"
+   vpninfo: "{{vpn.roaming}}"
 
-- name: Configure site to site VPNs
-  include_tasks: config-site2site.yml
+- name: Configure roaming VPNs
+  include_tasks: config-roaming.yml
   vars:
-    name: "{{ item.key }}"
-    vpn: "{{ item.value }}"
-  loop: "{{ vpninfo | dict2items }}"
+    name: "{{ item.0.key }}"
+    protocol: "{{ item.1 }}"
+    vpn: "{{ item.0.value[item.1] }}"
+  with_nested:
+    - "{{ vpninfo| dict2items }}"
+    - [ 'tcp', 'udp' ]
   tags: config

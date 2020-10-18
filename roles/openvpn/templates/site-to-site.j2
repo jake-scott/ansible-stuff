@@ -3,7 +3,7 @@
 #########################################################################
 
 port {{ vpn.port }}
-dev {{ vpn.dev }}
+dev tun
 float
 
 writepid /run/openvpn/site-to-site-{{name}}.pid

@@ -1,6 +1,8 @@
 ---
 
 ansible_user: config
-cert_dir: /var/tmp/jake/certs
+cert_dir: /home/jacob/src/ansible/secrets
+local_keys_dir: /home/jacob/src/ansible/secrets
+
 
 

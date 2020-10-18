@@ -5,40 +5,8 @@ all:
         uk:
           hosts:
             uk3.poptart.org:
-              vips:
-                test1: 10.3.2.10
-                test2: 10.3.2.11
-              vpn:
-                site_to_site:
-                  85pearl:
-                    port: 1095
-                    dev: tun10
-                    local_ip: 10.3.100.6
-                    remote_ip: 10.3.100.5
-                    remote_host: gw.85pearl.poptart.org
-                  uk3-us1:
-                    port: 1096
-                    dev: tun11
-                    local_ip: 10.3.100.9
-                    remote_ip: 10.3.100.10
-                    remote_host: us1.poptart.org
+              ansible_host: uk3-ext.poptart.org
         us:
          hosts:
             us1.poptart.org:
-              vips:
-                test1: 10.3.2.20
-                test2: 10.3.2.21
-              vpn:
-                site_to_site:
-                  85pearl:
-                    port: 1095
-                    dev: tun10
-                    local_ip: 10.3.100.8
-                    remote_ip: 10.3.100.7
-                    remote_host: gw.85pearl.poptart.org
-                  uk3-us1:
-                    port: 1096
-                    dev: tun11
-                    local_ip: 10.3.100.10
-                    remote_ip: 10.3.100.9
-                    remote_host: uk3.poptart.org
+              ansible_host: us1-ext.poptart.org
