@@ -21,6 +21,12 @@
     ansible.builtin.yum:
       autoremove: yes
 
+  - name: Enable services
+    systemd:
+      service: "{{item}}"
+      state: started
+      enabled: yes
+    loop: "{{services}}"
 
   become: yes
   become_user: root

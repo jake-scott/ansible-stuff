@@ -23,6 +23,13 @@ users:
 
   openvpn:
     groups: hostcert
+    attributes:
+      system: true
+
+  unifi:
+    groups: hostcert
+    attributes:
+      system: true
 
 software:
    - docker
@@ -70,3 +77,7 @@ certs:
     - vpn-uk.poptart.org
     - vpn-us.poptart.org
 acme_directory: https://acme-v02.api.letsencrypt.org/directory
+
+services:
+  - docker
+  - httpd
