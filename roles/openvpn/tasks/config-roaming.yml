@@ -1,0 +1,28 @@
+---
+
+- name: Configure roaming VPN {{name}} ({{protocol}})
+  template:
+    backup: yes
+    src: "roaming.j2"
+    dest: "{{server_config_dir}}/{{name}}-{{protocol}}.conf"
+    owner: root
+    group: openvpn
+    mode: '0640'
+  become: yes
+  become_user: root
+  register: cfg
+
+- name: DH Parameters
+  community.crypto.openssl_dhparam:
+    path: /etc/openvpn/dhparams.pem
+    size: 2048
+  become: yes
+  become_user: root
+
+- name: Enable systemd for {{name}}-{{protocol}}
+  systemd:
+    name: openvpn-server@{{name}}-{{protocol}}.service
+    enabled: yes
+    state: "{{ 'restarted' if cfg.changed else 'started' }}"
+  become: yes
+  become_user: root

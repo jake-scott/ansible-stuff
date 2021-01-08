@@ -45,6 +45,10 @@ COMMIT
   {% endfor %}
 {% endfor %}
 
+## Service ports
+{% for port in firewall.ports %}
+-A INPUT -i eth0 -m state --state NEW -m tcp -p tcp --dport {{port}} -j LogAccept
+{% endfor %}
 
 -A INPUT -j LogDrop
 

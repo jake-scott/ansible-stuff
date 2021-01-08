@@ -1,0 +1,27 @@
+---
+vips:
+    test1: 10.3.2.10
+    test2: 10.3.2.11
+    proxy: 10.3.2.2
+vpn:
+    roaming:
+        vpn-uk.poptart.org:
+            tcp:
+                port: 1194
+                local_net: 10.3.1.0
+                local_mask: 255.255.255.192
+            udp:
+                port: 1194
+                local_net: 10.3.1.64
+                local_mask: 255.255.255.192
+    site_to_site:
+        119fulton:
+            port: 1095
+            local_ip: 10.3.100.6
+            remote_ip: 10.3.100.5
+            remote_host: gw.119fulton.poptart.org
+        uk3-us1:
+            port: 1096
+            local_ip: 10.3.100.9
+            remote_ip: 10.3.100.10
+            remote_host: us1.poptart.org

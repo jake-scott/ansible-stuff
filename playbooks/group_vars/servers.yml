@@ -54,8 +54,7 @@ sshd:
   Match:
     - Condition: "Address 10.2.0.0/24"
       PermitRootLogin: yes
-    - Condition: "Address 10.2.0.0/24"
-      PermitRootLogin: yes
+      GatewayPorts: clientspecified
     - Condition: "Group restricted"
       PasswordAuthentication: false
       PermitTunnel: false

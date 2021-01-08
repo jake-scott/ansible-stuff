@@ -1,21 +1,21 @@
 ---
 
-# - include_tasks: secrets.yml
-#   tags: secrets
+- include_tasks: secrets.yml
+  tags: secrets
 
-# - include_tasks: systemd.yml
-#   tags: config
+- include_tasks: systemd.yml
+  tags: config
 
-# - set_fact:
-#    vpninfo: "{{vpn.site_to_site}}"
+- set_fact:
+   vpninfo: "{{vpn.site_to_site}}"
 
-# - name: Configure site to site VPNs
-#   include_tasks: config-site2site.yml
-#   vars:
-#     name: "{{ item.key }}"
-#     vpn: "{{ item.value }}"
-#   loop: "{{ vpninfo | dict2items }}"
-#   tags: config
+- name: Configure site to site VPNs
+  include_tasks: config-site2site.yml
+  vars:
+    name: "{{ item.key }}"
+    vpn: "{{ item.value }}"
+  loop: "{{ vpninfo | dict2items }}"
+  tags: config
 
 - set_fact:
    vpninfo: "{{vpn.roaming}}"
